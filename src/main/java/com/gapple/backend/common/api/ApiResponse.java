@@ -1,5 +1,8 @@
 package com.gapple.backend.common.api;
 
+import lombok.Getter;
+
+@Getter
 public class ApiResponse<T> {
 
     private String status;
