@@ -2,7 +2,7 @@ name: Prod
 
 on:
   push:
-    branches: [ setting/1/setup-deployment-environment ]
+    branches: [ main ]
 
 jobs:
   build:
