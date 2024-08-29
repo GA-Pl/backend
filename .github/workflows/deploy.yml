@@ -17,8 +17,19 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
+
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+        run: chmod +x gradlew
+
+      - name: Copy application.properties from S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp \
+          --region ap-northeast-2 \
+          --acl private \
+          s3://gapple-deploy/application.properties src/main/resources/application.properties
 
       - name: Build with Gradle
         run: ./gradlew clean build
