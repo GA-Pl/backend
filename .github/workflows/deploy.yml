@@ -1,0 +1,73 @@
+name: Prod
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Copy application.properties from S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp \
+          --region ap-northeast-2 \
+          --acl private \
+          s3://gapple-deploy/application.properties src/main/resources/application.properties
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      # 빌드 완료, S3 로 전달
+
+      - name: make directory for deliver
+        run: mkdir deploy
+
+      - name: Copy Jar
+        run: cp ./build/libs/*.jar ./deploy/
+
+      - name: Copy appspec
+        run: cp appspec.yml ./deploy/
+
+      - name: Copy shell script
+        run: cp deploy.sh ./deploy/
+
+      - name: Make zip file
+        run: zip -r -qq -j ./gapple-production.zip ./deploy
+
+      - name: Deliver to AWS S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp \
+          --region ap-northeast-2 \
+          --acl private \
+          ./gapple-production.zip s3://gapple-deploy/
+
+      - name: Deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws deploy create-deployment \
+          --application-name gapple-codedeploy \
+          --deployment-group-name prod \
+          --s3-location bucket=gapple-deploy,bundleType=zip,key=gapple-production.zip \
+          --region ap-northeast-2
