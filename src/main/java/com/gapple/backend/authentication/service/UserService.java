@@ -23,6 +23,12 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
     }
 
+    public User get(Long id) {
+
+        return userRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+    }
+
     @Transactional
     public User save(AuthRequest dto, NaverUserProfile profile) {
 

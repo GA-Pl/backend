@@ -1,9 +1,12 @@
 package com.gapple.backend.authentication.service;
 
 import com.gapple.backend.authentication.domain.dto.AuthRequest;
+import com.gapple.backend.authentication.domain.dto.AuthResponse;
 import com.gapple.backend.authentication.domain.dto.NaverUserProfile;
+import com.gapple.backend.authentication.domain.entity.User;
 import com.gapple.backend.common.exception.CustomException;
 import com.gapple.backend.common.exception.ErrorCode;
+import com.gapple.backend.common.security.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +20,10 @@ public class AuthService {
 
     private final OAuthService oAuthService;
 
-    public void signUpUser(AuthRequest dto) {
+    private final TokenUtils tokenUtils;
+
+    @Transactional
+    public AuthResponse signUpUser(AuthRequest dto) {
 
         NaverUserProfile profile = oAuthService.sendNaverUserProfileRequest(dto.getAccessToken());
 
@@ -25,13 +31,45 @@ public class AuthService {
             throw new CustomException(ErrorCode.CONFLICT_RESOURCE);
         }
 
-        userService.save(dto, profile);
+        User user = userService.save(dto, profile);
+
+        return buildResponse(user);
     }
 
-    public void logInUser(AuthRequest dto) {
+    public AuthResponse logInUser(AuthRequest dto) {
 
         NaverUserProfile profile = oAuthService.sendNaverUserProfileRequest(dto.getAccessToken());
 
-        userService.get(profile);
+        User user = userService.get(profile);
+
+        return buildResponse(user);
+    }
+
+    public AuthResponse refreshAuthInfo(String refreshToken) {
+
+        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
+            refreshToken = refreshToken.substring(7);
+        } else {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+
+        if (tokenUtils.isExpired(refreshToken)) {
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
+        }
+
+        Long id = tokenUtils.getUserId(refreshToken);
+        User user = userService.get(id);
+
+        return buildResponse(user);
+    }
+
+    private AuthResponse buildResponse(User user) {
+
+        return AuthResponse.builder()
+                .email(user.getEmail())
+                .profileImg(user.getProfileImg())
+                .accessToken(tokenUtils.createAccessToken(user))
+                .refreshToken(tokenUtils.createRefreshToken(user))
+                .build();
     }
 }
