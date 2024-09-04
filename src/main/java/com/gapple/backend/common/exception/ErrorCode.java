@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode implements CommonErrorCode {
 
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰 만료"),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰"),
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "파라미터 값 확인 필요"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 리소스 없음"),
     CONFLICT_RESOURCE(HttpStatus.CONFLICT, "중복된 리소스"),
