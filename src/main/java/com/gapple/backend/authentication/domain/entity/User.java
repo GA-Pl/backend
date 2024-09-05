@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "user")
 @Getter
 @Builder
+@AllArgsConstructor
 public class User extends BaseEntity {
 
     @Id
@@ -34,4 +36,7 @@ public class User extends BaseEntity {
     private String refreshToken;
 
     private LocalDateTime lastLoggedInAt;
+
+    public User() {
+    }
 }

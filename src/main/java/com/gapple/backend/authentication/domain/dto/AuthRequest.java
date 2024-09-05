@@ -1,8 +1,10 @@
 package com.gapple.backend.authentication.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class AuthRequest {
 
     private String email;

@@ -12,13 +12,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class OAuthService {
 
-    WebClient webClient;
-
     public NaverUserProfile sendNaverUserProfileRequest(String socialAccessToken) {
+
+        WebClient webClient = WebClient.create();
 
         return webClient.get()
                 .uri("https://openapi.naver.com/v1/nid/me")
-                .header("Authorization", "Bearer" + socialAccessToken)
+                .header("Authorization", "Bearer " + socialAccessToken)
                 .retrieve()
                 .bodyToMono(OAuthNaverUserProfileResponse.class)
                 .block()
