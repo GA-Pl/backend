@@ -1,10 +1,13 @@
 package com.gapple.backend.common.exception;
 
 import com.gapple.backend.common.api.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -21,9 +24,15 @@ public class GlobalExceptionHandler {
         return handleInternalException(ErrorCode.INVALID_PARAMETER);
     }
 
+    @ExceptionHandler(MissingRequestValueException.class)
+    protected ResponseEntity<Object> handleMissingRequestValueException(MissingRequestValueException exception) {
+
+        return handleInternalException(ErrorCode.INVALID_PARAMETER);
+    }
+
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<Object> handleException(Exception exception) {
-
+        exception.printStackTrace();
         return handleInternalException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
