@@ -42,9 +42,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public boolean isExistsByEmail(String email) {
+    public boolean checkExistsByEmail(String email) {
 
-        return userRepository.existsByEmail(email);
+        boolean isUserExist = userRepository.existsByEmail(email);
+
+        if (isUserExist) {
+            return true;
+        } else {
+            throw new CustomException(ErrorCode.NOT_FOUND);
+        }
     }
 
     public boolean isExistsByIdAndEmail(NaverUserProfile profile) {

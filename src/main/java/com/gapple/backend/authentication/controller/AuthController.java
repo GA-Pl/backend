@@ -31,7 +31,7 @@ public class AuthController {
             @RequestParam(value = "email") String email
     ) {
 
-        return ResponseEntity.ok(ApiResponse.success(userService.isExistsByEmail(email)));
+        return ResponseEntity.ok(ApiResponse.success(userService.checkExistsByEmail(email)));
     }
 
     @PostMapping("/oauth/signup")
