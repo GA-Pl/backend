@@ -35,6 +35,7 @@ public class UserService {
         User user = User.builder()
                 .email(dto.getEmail())
                 .displayName(dto.getDisplayName())
+                .nickName(generateNickname())
                 .socialId(profile.getId())
                 .profileImg(dto.getProfileImg())
                 .build();
@@ -56,5 +57,16 @@ public class UserService {
     public boolean isExistsByIdAndEmail(NaverUserProfile profile) {
 
         return userRepository.existsByEmailAndSocialId(profile.getEmail(), profile.getId());
+    }
+
+    private String generateNickname() {
+
+        while (true) {
+            String generatedNickname = NicknameUtils.generate();
+
+            if (!userRepository.existsByNickName(generatedNickname)) {
+                return generatedNickname;
+            }
+        }
     }
 }

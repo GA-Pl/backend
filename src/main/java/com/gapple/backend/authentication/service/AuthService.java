@@ -67,6 +67,7 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .email(user.getEmail())
+                .name(user.getNickName())
                 .profileImg(user.getProfileImg())
                 .accessToken(tokenUtils.createAccessToken(user))
                 .refreshToken(tokenUtils.createRefreshToken(user))
